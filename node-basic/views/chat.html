@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Socket.io Chat Example</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h3>Socket.io Chat Example</h3>
+      <form class="form-inline">
+        <div class="form-group">
+          <label for="msgForm">Message: </label>
+          <input type="text" class="form-control" id="msgForm" />
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+      <div id="chatLogs"></div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(function () {
+        // socket.io 서버에 접속하기
+        const socket = io();
+
+        // 서버로 자신의 정보를 전송한다
+        socket.emit("login", {
+          name: makeRandomName(),
+          userid: "jin.yu@vuno.co",
+        });
+
+        // 서버로부터 메시지가 수신되면
+        socket.on("chat", (data) => {
+          $("#chatLogs").append(
+            `<div>${data.msg} : from <strong>${data.from.name}</strong></div>`
+          );
+        });
+
+        // Send Click
+        $("form").submit((event) => {
+          event.preventDefault();
+          const $msgForm = $("#msgForm");
+
+          // 서버로 메시지 전송
+          socket.emit("chat", { msg: $msgForm.val() });
+          $msgForm.val("");
+        });
+
+        function makeRandomName() {
+          let name = "";
+          const possible = "abcdefghijklmnopqrstuvwxyz0123456789";
+          for (let i = 0; i < 3; i++) {
+            name += possible.charAt(
+              Math.floor(Math.random() * possible.length)
+            );
+          }
+          return name;
+        }
+      });
+    </script>
+  </body>
+</html>
